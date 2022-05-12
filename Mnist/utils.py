@@ -1,5 +1,4 @@
 from collections import defaultdict
-from functools import lru_cache
 import numpy as np
 import matplotlib.pylab as plt
 
@@ -93,26 +92,25 @@ class Confusion:
         """
         display the confusion matrix with images
         """
-        """
-        plt.subplot(2,5,prediction+1)
-    plt.axis("off")
-    plt.title(prediction)
-    plt.imshow(im_difference_pos.squeeze())
-        """
         classes = list(set(self.classes))
-        i = 1
-        for true_class in classes:
-            for predicted_class in classes:
-                plt.subplot(len(classes),len(classes),i)
-                plt.axis("off")
-#                 plt.title(f"{class_1},{class_2}")
+        fig, axes = plt.subplots(len(classes), len(classes))
+        fig.suptitle('True Class', fontweight='bold')
+        fig.supylabel('Predicted Class', fontweight='bold')
+        for i_p, predicted_class in enumerate(classes):
+            for i_t, true_class in enumerate(classes):
                 average_image = self.get_mean_image(true_class, predicted_class)
                 if average_image == []:
                     average_image = np.zeros((28, 28))
-                
-                plt.imshow(average_image.squeeze())
-                i += 1
-                                
+                axes[i_p][i_t].imshow(average_image.squeeze())
+                axes[i_p][i_t].set_yticklabels([])
+                axes[i_p][i_t].set_xticklabels([])
+                axes[i_p][i_t].set_xticks([])
+                axes[i_p][i_t].set_yticks([])
+                if i_p == 0:
+                    axes[i_p][i_t].set_title(true_class)
+                if i_t == 0:
+                    axes[i_p][i_t].set_ylabel(predicted_class)
+        plt.show()     
     
     def average_image(self, images):
         """
@@ -164,7 +162,6 @@ class Confusion:
 
         return hashmap
 
-    # @lru_cache(maxsize=None)
     def get_mean_image(self, true_class, predicted_class):
         """
         returns the mean image for images classified of class true_class that are predicted as predicted_class
